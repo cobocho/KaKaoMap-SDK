@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { medicineReducer } from './medicineSlice';
-import { openAPI } from '../api/openApi';
+import { openAPI } from '../api/openApi.js';
 import { mapReducer } from './mapSlice';
 import { electronicReducer } from './elcetronicSlice';
 
