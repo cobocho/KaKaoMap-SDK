@@ -1,6 +1,9 @@
 {
   "rewrites":  [
 		{ "source": "/", "destination": "/index.html" },
-		{ "source": "/map", "destination": "/index.html" }
+		{ "source": "/:category/:id", "destination": "/index.html" },
+		{ "source": "/boards", "destination": "/index.html" },
+		{ "source": "/certificate", "destination": "/index.html" },
+		{ "source": "/user", "destination": "/index.html" }
   ]
 }
