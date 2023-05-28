@@ -29,7 +29,6 @@ const MapPageBox = styled.div`
 `
 
 const MapPage = () => {
-
   return (
     <MapPageBox>
       <div className="map-layout">

@@ -1,11 +1,11 @@
 import AsideViewer from "../components/AsideViewer/AsideViewer";
 
-const CertificatePage = () => {
+const Shop = () => {
   return (
     <AsideViewer>
-      Certificate
+      Shop
     </AsideViewer>
   );
 };
 
-export default CertificatePage;
+export default Shop;

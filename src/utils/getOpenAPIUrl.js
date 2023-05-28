@@ -6,11 +6,11 @@ const getDistance = (lv) => {
   let result = 0;
   const width = window.innerWidth;
   // 데스크탑
-  if (width > 900) result = 100;
+  if (width > 900) result = 260;
   // 태블릿
-  else if (width > 500) result = 60;
+  else if (width > 500) result = 200;
   // 모바일
-  else if (width < 500) result = 40;
+  else if (width < 500) result = 100;
 
   for (let i = 1; i < lv; i++) {
     result = result * 2;

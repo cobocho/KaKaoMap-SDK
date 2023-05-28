@@ -6,40 +6,15 @@ import styled from "styled-components";
 import { useGetElectronicsQuery, useGetMedicinesQuery } from "../../api/openApi";
 import { useDispatch, useSelector } from "react-redux";
 import { mapActions } from "../../store/mapSlice";
-import Card from "../UI/Card";
-import { OPEN_API_CODES } from "../../constants/openAPI_codes";
+import { OPEN_API_CODES, OPEN_API_ITEM_CODES } from "../../constants/openAPI_codes";
 import { getConvertedAPIData } from "../../utils/getConvertedAPIData";
 
-const AppearAnimation = styled.div`
-  opacity: 0;
-  animation: appear 0.5s forwards;
-  
-  @keyframes appear {
-    0% {
-      opacity: 0;
-      transform: translateY(50px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`
 
 const MapBox = styled.div`
   position: relative;
-  height: 800px;
-  aspect-ratio: 1/1;
-
-  @media (max-width: 900px) {
-    width: 500px;
-    height: 500px;
-  }
-
-  @media (max-width: 500px) {
-    width: 350px;
-    height: 350px;
-  }
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 `
 
 const Loadingbox = styled.div`
@@ -51,40 +26,6 @@ const Loadingbox = styled.div`
   font-weight: 800;
   z-index: 999;
   opacity: 0.3;
-`
-
-const Bar = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 40px;
-  background-color: #e2e2e2;
-
-  .buttons {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    margin-left: 20px;
-  }
-
-  .fake-button {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-    border-radius: 50%;
-  }
-
-  .fake-button:nth-child(1) {
-    background-color: #d94c4c;
-  }
-
-  .fake-button:nth-child(2) {
-    background-color: #d8b800;
-  }
-
-  .fake-button:nth-child(3) {
-    background-color: #29920e;
-  }
 `
 
 const KakaoMap = () => {
@@ -123,91 +64,111 @@ const KakaoMap = () => {
   const isFetching = medicineIsFetching || electroninDataIsFetching;
 
   return (
-    <AppearAnimation>
-      <Card>
-        <Bar>
-          <div className="buttons">
-            <div className="fake-button" />
-            <div className="fake-button" />
-            <div className="fake-button" />
-          </div>
-        </Bar>
-        <MapBox>
-          <Map
-            center={center.coord}
-            isPanto={center.isPanto}
-            maxLevel={4}
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
-            level={DEFAULT_LEVEL}
-            // 지도 이동 이벤트
-            onDragEnd={(map) => {
-              dispatch(mapActions.setPosition({
-                lat: map.getCenter().getLat(),
-                lng: map.getCenter().getLng()
-              }));
-              dispatch(mapActions.setSelectedItemId(null));
-              navigate(`/`);
-              }
-            }
-            // 줌 변경 이벤트
-            onZoomChanged={(map) => {
-              dispatch(mapActions.setPosition({
-                lat: map.getCenter().getLat(),
-                lng: map.getCenter().getLng()
-              }));
-              dispatch(mapActions.setLevel(map.getLevel()));
-              navigate(`/`);
-            }}
-          >
-            <MarkerClusterer
-              averageCenter={true}
-              minClusterSize={2}
-              minLevel={3}
-            >
-            {
-              !isFetching
-              &&
-              allData.map((item) => {
-                const { THEME_ID, ID, COORD: { X, Y } } = getConvertedAPIData(item);
-                if (THEME_ID === OPEN_API_CODES.MEDICINES.THEME_ID && !isMedicineSelected) return;
-                if (THEME_ID === OPEN_API_CODES.ELECTRONIC.THEME_ID && !isElectronicsSelected) return;
-                return (
-                  <CustomOverlayMap
-                    key={ID}
-                    position={{
-                      lat: Y, 
-                      lng: X,
-                    }}
-                  >
-                    <Marker 
-                      className={ 
-                        ID === selectedItemId || ID === hoveredItemId
-                        ? 
-                        'selected' 
-                        : 
-                        '' }
-                      theme={THEME_ID}
-                      onClick={
-                        () => {
-                          const category = THEME_ID === OPEN_API_CODES.MEDICINES.THEME_ID ? 'medicine' : 'electronics';
-                          dispatch(mapActions.setLevel(2));
-                          navigate(`/${category}/${ID}`);
-                        }
-                      }
-                    />
-                  </CustomOverlayMap>
-                )
-              })
-            }
-            </MarkerClusterer>
-          </Map>
-          {isFetching && <Loadingbox>Loading...</Loadingbox>}
-        </MapBox>
-      </Card>
-    </AppearAnimation>
+    <MapBox>
+      <Map
+        center={center.coord}
+        isPanto={center.isPanto}
+        maxLevel={4}
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+        level={DEFAULT_LEVEL}
+
+        // 영역에 보이는 마커만 목록에 세팅
+        onCreate={(map) => {
+          const bounds = map.getBounds();
+          const inBounds = allData.filter((data) => {
+            const marker = new kakao.maps.LatLng(data[OPEN_API_ITEM_CODES.COORD.Y], data[OPEN_API_ITEM_CODES.COORD.X]);
+            return bounds.contain(marker);
+          });
+          dispatch(mapActions.setVisibleItemList(inBounds));
+        }}
+
+        // 지도 이동 이벤트
+        onDragEnd={(map) => {
+          dispatch(mapActions.setPosition({
+            lat: map.getCenter().getLat(),
+            lng: map.getCenter().getLng()
+          }));
+          dispatch(mapActions.setSelectedItemId(null));
+          dispatch(mapActions.setHoveredItemId(null));
+
+          // 영역에 보이는 마커만 목록에 세팅
+          const bounds = map.getBounds();
+          const inBounds = allData.filter((data) => {
+            const marker = new kakao.maps.LatLng(data[OPEN_API_ITEM_CODES.COORD.Y], data[OPEN_API_ITEM_CODES.COORD.X]);
+            return bounds.contain(marker);
+          });
+
+          dispatch(mapActions.setVisibleItemList(inBounds));
+
+          navigate(`/`);
+          }
+        }
+
+        // 줌 변경 이벤트
+        onZoomChanged={(map) => {
+          dispatch(mapActions.setPosition({
+            lat: map.getCenter().getLat(),
+            lng: map.getCenter().getLng()
+          }));
+          dispatch(mapActions.setLevel(map.getLevel()));
+
+          const bounds = map.getBounds();
+          const inBounds = allData.filter((data) => {
+            const marker = new kakao.maps.LatLng(data[OPEN_API_ITEM_CODES.COORD.Y], data[OPEN_API_ITEM_CODES.COORD.X]);
+            return bounds.contain(marker);
+          });
+
+          dispatch(mapActions.setVisibleItemList(inBounds));
+
+          navigate(`/`);
+        }}
+      >
+        <MarkerClusterer
+          averageCenter={true}
+          minClusterSize={2}
+          minLevel={3}
+        >
+        {
+          !isFetching
+          &&
+          allData.map((item) => {
+            const { THEME_ID, ID, COORD: { X, Y } } = getConvertedAPIData(item);
+            if (THEME_ID === OPEN_API_CODES.MEDICINES.THEME_ID && !isMedicineSelected) return;
+            if (THEME_ID === OPEN_API_CODES.ELECTRONIC.THEME_ID && !isElectronicsSelected) return;
+            return (
+              <CustomOverlayMap
+                key={ID}
+                position={{
+                  lat: Y, 
+                  lng: X,
+                }}
+              >
+                <Marker
+                  className={ 
+                    ID === selectedItemId || ID === hoveredItemId
+                    ? 
+                    'selected' 
+                    : 
+                    '' }
+                  theme={THEME_ID}
+                  onClick={
+                    () => {
+                      const category = THEME_ID === OPEN_API_CODES.MEDICINES.THEME_ID ? 'medicine' : 'electronics';
+                      navigate(`/${category}/${ID}`);
+                    }
+                  }
+                />
+              </CustomOverlayMap>
+            )
+          })
+        }
+        </MarkerClusterer>
+      </Map>
+      {isFetching && <Loadingbox>Loading...</Loadingbox>}
+    </MapBox>
   );
 };
 

@@ -1,28 +1,25 @@
 import { useSelector } from 'react-redux';
 import AsideViewer from '../../components/AsideViewer/AsideViewer';
 import ItemList from '../../components/Items/ItemList';
+import { OPEN_API_CODES, OPEN_API_ITEM_CODES } from '../../constants/openAPI_codes';
 
 const MapAside = () => {
-  const medicineList = useSelector((state) => state.medicine.medicineList);
-  const electronicList = useSelector((state) => state.electronic.electronicList);
-
+  let allItem = useSelector((state) => state.map.visibleItemList);
   const isMedicineSelected = useSelector((state) => state.medicine.selected);
   const isElectronicSelected = useSelector((state) => state.electronic.selected);
 
-  const allData = [];
-
-  if (isMedicineSelected)  {
-    allData.push(...medicineList);
+  if (!isMedicineSelected)  {
+    allItem = allItem.filter(item => item[OPEN_API_ITEM_CODES.THEME_ID] !== OPEN_API_CODES.MEDICINES.THEME_ID);
   }
 
-  if (isElectronicSelected)  {
-    allData.push(...electronicList);
+  if (!isElectronicSelected)  {
+    allItem = allItem.filter(item => item[OPEN_API_ITEM_CODES.THEME_ID] !== OPEN_API_CODES.ELECTRONIC.THEME_ID);
   }
   
   return (
     <AsideViewer>
       {
-        allData && <ItemList allData={allData} />
+        allItem && <ItemList allData={allItem} />
       }
       
     </AsideViewer>

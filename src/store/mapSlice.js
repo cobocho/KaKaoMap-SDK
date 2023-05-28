@@ -11,6 +11,7 @@ const mapSlice = createSlice({
     position: {
       ...BASE_COORD,
     },
+    visibleItemList: [],
     level: DEFAULT_LEVEL,
     selectedItemId: null,
     hoveredItemId: null,
@@ -27,6 +28,9 @@ const mapSlice = createSlice({
     },
     setLevel: (state, { payload }) => {
       state.level = payload;
+    },
+    setVisibleItemList: (state, { payload }) => {
+      state.visibleItemList = payload;
     },
     setSelectedItemId: (state, { payload }) => {
       state.selectedItemId = payload;
