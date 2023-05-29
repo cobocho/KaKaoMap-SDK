@@ -2,9 +2,9 @@ import AsideViewer from "../components/AsideViewer/AsideViewer";
 
 const BoardsPage = () => {
   return (
-    <AsideViewer>
+    <div>
       Boards
-    </AsideViewer>
+    </div>
   );
 };
 

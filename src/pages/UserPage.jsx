@@ -2,9 +2,9 @@ import AsideViewer from "../components/AsideViewer/AsideViewer";
 
 const UserPage = () => {
   return (
-    <AsideViewer>
+    <div>
       User
-    </AsideViewer>
+    </div>
   );
 };
 

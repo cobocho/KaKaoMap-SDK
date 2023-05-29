@@ -17,10 +17,10 @@ function App() {
           <Route path='/' element={<MapPage/>}>
             <Route path='' element={<MapAside/>} />
             <Route path=':category/:id' element={<IdAside/>} />
-            <Route path='boards' element={<BoardsPage/>} />
-            <Route path='shop' element={<Shop/>} />
-            <Route path='user' element={<UserPage/>} />
           </Route>
+          <Route path='boards' element={<BoardsPage/>} />
+          <Route path='shop' element={<Shop/>} />
+          <Route path='user' element={<UserPage/>} />
         </Routes>
       </Layout>
     </BrowserRouter>

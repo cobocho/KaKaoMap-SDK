@@ -2,9 +2,9 @@ import AsideViewer from "../components/AsideViewer/AsideViewer";
 
 const Shop = () => {
   return (
-    <AsideViewer>
+    <div>
       Shop
-    </AsideViewer>
+    </div>
   );
 };
 
